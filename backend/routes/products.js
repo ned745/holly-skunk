@@ -1,25 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
-
-// Configure Multer storage for direct device image uploads
-const uploadDir = path.join(__dirname, '../public/uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
-  }
-});
-const upload = multer({ storage: storage });
+const upload = require('../middleware/upload'); // Import Cloudinary upload middleware
 
 // GET /api/products - Fetch all products
 router.get('/', async (req, res) => {
@@ -69,18 +51,19 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// POST /api/products/add - Add a new product with optional image file upload
+// POST /api/products/add - Add a new product with Cloudinary image upload
 router.post('/add', upload.single('imageFile'), async (req, res) => {
   try {
-    const { name, price, category, description, stock } = req.body;
+    const { name, price, category, description, stock, image } = req.body;
     
     if (!name || price === undefined) {
       return res.status(400).json({ success: false, error: 'Product name and price are required.' });
     }
 
-    let imagePath = '';
+    // req.file.path automatically contains the secure public URL from Cloudinary
+    let imagePath = image || '';
     if (req.file) {
-      imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
+      imagePath = req.file.path;
     }
 
     const newProduct = {
@@ -150,43 +133,3 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
-// POST /api/products/add - Add a new product with optional image file upload
-router.post('/add', upload.single('imageFile'), async (req, res) => {
-  try {
-    const { name, price, category, description, stock, image } = req.body;
-    
-    if (!name || price === undefined) {
-      return res.status(400).json({ success: false, error: 'Product name and price are required.' });
-    }
-
-    let imagePath = image || '';
-    if (req.file) {
-      imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
-    }
-
-    const newProduct = {
-      name: name.trim(),
-      price: parseFloat(price),
-      category: category ? category.toLowerCase() : 'fashion',
-      description: description || '',
-      stock: parseInt(stock, 10) || 0,
-      image: imagePath,
-      createdAt: new Date()
-    };
-
-    const result = await req.db.collection('products').insertOne(newProduct);
-    res.status(201).json({ 
-      success: true, 
-      message: 'Product and image added to catalog successfully!',
-      productId: result.insertedId 
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-// backend/routes/products.js
-const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
-
-if (req.file) {
-  imagePath = `${baseUrl}/uploads/${req.file.filename}`;
-}

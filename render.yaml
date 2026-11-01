@@ -1,7 +1,9 @@
 ﻿services:
   - type: web
     name: holly-skunk-backend
-    env: node
+    runtime: node
+    region: singapore
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
