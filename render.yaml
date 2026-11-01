@@ -1,0 +1,14 @@
+﻿services:
+  - type: web
+    name: holly-skunk-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: CLOUDINARY_CLOUD_NAME
+        value: kkboqdmc
+      - key: CLOUDINARY_API_KEY
+        value: 525599518945787
+      - key: CLOUDINARY_API_SECRET
+        value: dfViTVWUh6324cCGMkOowXJwCCE
