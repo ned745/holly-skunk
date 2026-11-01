@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShoppingBag, ShieldAlert, Lock, Unlock, RefreshCw, Key, ShoppingCart, Trash2, X, ShieldCheck } from 'lucide-react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://holly-skunk-backend.onrender.com/api';
+
 interface Product {
   name: string;
   price: number;
@@ -43,12 +45,12 @@ export default function StorefrontHome() {
       const savedToken = localStorage.getItem('hs_token');
       if (savedToken) headers['Authorization'] = `Bearer ${savedToken}`;
       
-      const res = await fetch(`http://localhost:5000/api/products/${tab}`, { headers });
+      const res = await fetch(`${API_URL}/products/${tab}`, { headers });
       const json = await res.json();
       if (json.success) setProducts(json.data);
       else setError(json.error || 'Failed to fetch catalog.');
     } catch {
-      setError('Could not connect to the backend server engine on Port 5000.');
+      setError('Unable to reach the backend server engine. Please check network or Render status.');
     } finally { 
       setLoading(false); 
     }
@@ -62,7 +64,7 @@ export default function StorefrontHome() {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
