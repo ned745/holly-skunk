@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { PackagePlus, ArrowLeft, ShieldCheck, CheckCircle2, AlertCircle, Image as ImageIcon } from 'lucide-react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://holly-skunk-backend.onrender.com/api';
+
 export default function AdminDashboard() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ export default function AdminDashboard() {
         dataPayload.append('imageFile', imageFile);
       }
 
-      const res = await fetch('http://localhost:5000/api/products/add', {
+      const res = await fetch(`${API_URL}/products/add`, {
         method: 'POST',
         // Note: Do not set Content-Type header manually when using FormData
         body: dataPayload
@@ -63,7 +65,7 @@ export default function AdminDashboard() {
         setStatus({ type: 'error', msg: data.error || 'Failed to add product.' });
       }
     } catch {
-      setStatus({ type: 'error', msg: 'Could not reach backend API server on Port 5000.' });
+      setStatus({ type: 'error', msg: 'Could not reach backend API server. Please check Render status.' });
     } finally {
       setIsSubmitting(false);
     }
