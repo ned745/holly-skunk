@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "path": "./backend", "name": "HOLLY-SKUNK-BACKEND" },
+    { "path": "./frontend", "name": "HOLLY-SKUNK-FRONTEND" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  }
+}
