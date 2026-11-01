@@ -79,10 +79,12 @@ app.post('/api/products/add', upload.single('imageFile'), async (req, res) => {
       return res.status(400).json({ success: false, error: 'Product name and price are required.' });
     }
 
-    // Use uploaded file route if available, otherwise fallback to URL input
+    // Use uploaded file route dynamically based on current server host (supports Render & Localhost)
     let imagePath = image || '';
     if (req.file) {
-      imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+      const host = req.get('host');
+      imagePath = `${protocol}://${host}/uploads/${req.file.filename}`;
     }
 
     const newProduct = {
